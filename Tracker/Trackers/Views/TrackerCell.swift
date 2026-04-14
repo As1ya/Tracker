@@ -77,7 +77,43 @@ final class TrackerCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - Setup
+    // MARK: - Configuration
+    
+    func configure(with tracker: Tracker, isCompletedToday: Bool, completedDays: Int) {
+        nameLabel.text = tracker.name
+        emojiLabel.text = tracker.emoji
+        topContainerView.backgroundColor = tracker.color
+        
+        let formatString: String
+        let remainder10 = completedDays % 10
+        let remainder100 = completedDays % 100
+        
+        if remainder10 == 1 && remainder100 != 11 {
+            formatString = "%d день"
+        } else if (2...4).contains(remainder10) && !(12...14).contains(remainder100) {
+            formatString = "%d дня"
+        } else {
+            formatString = "%d дней"
+        }
+        daysLabel.text = String(format: formatString, completedDays)
+        
+        let image = isCompletedToday ? UIImage(systemName: "checkmark") : UIImage(systemName: "plus")
+        completeButton.setImage(image?.withRenderingMode(.alwaysTemplate), for: .normal)
+        
+        if isCompletedToday {
+            completeButton.backgroundColor = tracker.color.withAlphaComponent(0.3)
+        } else {
+            completeButton.backgroundColor = tracker.color
+        }
+    }
+    
+    // MARK: - Actions
+    
+    @objc private func completeButtonTapped() {
+        delegate?.trackerCellDidTapCompleteButton(self)
+    }
+
+    // MARK: - Private Methods
     
     private func setupView() {
         contentView.addSubview(topContainerView)
@@ -115,46 +151,5 @@ final class TrackerCell: UICollectionViewCell {
             completeButton.widthAnchor.constraint(equalToConstant: 34),
             completeButton.heightAnchor.constraint(equalToConstant: 34)
         ])
-    }
-    
-    // MARK: - Configuration
-    
-    func configure(with tracker: Tracker, isCompletedToday: Bool, completedDays: Int) {
-        nameLabel.text = tracker.name
-        emojiLabel.text = tracker.emoji
-        topContainerView.backgroundColor = tracker.color
-        
-        let daysString = String.localizedStringWithFormat(
-            NSLocalizedString("%d days", comment: "Number of days completed"),
-            completedDays
-        ) 
-  
-        let formatString: String
-        let remainder10 = completedDays % 10
-        let remainder100 = completedDays % 100
-        
-        if remainder10 == 1 && remainder100 != 11 {
-            formatString = "%d день"
-        } else if (2...4).contains(remainder10) && !(12...14).contains(remainder100) {
-            formatString = "%d дня"
-        } else {
-            formatString = "%d дней"
-        }
-        daysLabel.text = String(format: formatString, completedDays)
-        
-        let image = isCompletedToday ? UIImage(systemName: "checkmark") : UIImage(systemName: "plus")
-        completeButton.setImage(image?.withRenderingMode(.alwaysTemplate), for: .normal)
-        
-        if isCompletedToday {
-            completeButton.backgroundColor = tracker.color.withAlphaComponent(0.3)
-        } else {
-            completeButton.backgroundColor = tracker.color
-        }
-    }
-    
-    // MARK: - Actions
-    
-    @objc private func completeButtonTapped() {
-        delegate?.trackerCellDidTapCompleteButton(self)
     }
 }

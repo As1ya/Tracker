@@ -10,10 +10,14 @@ import UIKit
 final class TrackersViewController: UIViewController {
     
     // MARK: - Properties
-    var categories: [TrackerCategory] = []
-    var visibleCategories: [TrackerCategory] = []
-    var completedTrackers: [TrackerRecord] = []
-    var currentDate: Date = Date()
+    private let trackerCategoryStore = TrackerCategoryStore()
+    private let trackerRecordStore = TrackerRecordStore()
+    private let trackerStore = TrackerStore()
+
+    private var categories: [TrackerCategory] = []
+    private var visibleCategories: [TrackerCategory] = []
+    private var completedTrackers: [TrackerRecord] = []
+    private var currentDate: Date = Date()
     private var completedTrackerIDs: Set<UUID> = []
     
     // MARK: - UI Elements
@@ -66,6 +70,11 @@ final class TrackersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .trWhite
+        
+        trackerCategoryStore.delegate = self
+        trackerRecordStore.delegate = self
+        trackerStore.delegate = self
+        
         setupNavigationBar()
         setupViews()
         reloadData()
@@ -129,6 +138,15 @@ final class TrackersViewController: UIViewController {
     
     // MARK: - Core Logic
     private func reloadData() {
+        do {
+            categories = try trackerCategoryStore.fetchAllCategories()
+            completedTrackers = try trackerRecordStore.fetchAllRecords()
+        } catch {
+            print("Ошибка загрузки данных из Core Data: \(error)")
+            categories = []
+            completedTrackers = []
+        }
+
         let filterText = searchController.searchBar.text?.lowercased() ?? ""
         
         let weekday = currentWeekDay()
@@ -234,6 +252,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
+// MARK: - TrackerCellDelegate
 extension TrackersViewController: TrackerCellDelegate {
     func trackerCellDidTapCompleteButton(_ cell: TrackerCell) {
         let today = Date()
@@ -247,30 +266,44 @@ extension TrackersViewController: TrackerCellDelegate {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
         
-        if isTrackerCompletedToday(id: tracker.id) {
-            completedTrackers.removeAll { record in
-                record.trackerId == tracker.id && Calendar.current.isDate(record.date, inSameDayAs: currentDate)
+        do {
+            if isTrackerCompletedToday(id: tracker.id) {
+                try trackerRecordStore.removeRecord(trackerId: tracker.id, date: currentDate)
+            } else {
+                try trackerRecordStore.addRecord(trackerId: tracker.id, date: currentDate)
             }
-        } else {
-            let record = TrackerRecord(trackerId: tracker.id, date: currentDate)
-            completedTrackers.append(record)
+        } catch {
+            print("Ошибка при обновлении записи выполнения: \(error)")
         }
         
-        updateCompletedTrackerIDs()
-        collectionView.reloadItems(at: [indexPath])
+        // Data will refresh via TrackerRecordStoreDelegate
     }
 }
 
+// MARK: - TrackerCreationDelegate
 extension TrackersViewController: TrackerCreationDelegate {
     func didCreateTracker(_ tracker: Tracker, category: String) {
-        if let existingCategoryIndex = categories.firstIndex(where: { $0.title == category }) {
-            var updatedTrackers = categories[existingCategoryIndex].trackers
-            updatedTrackers.append(tracker)
-            categories[existingCategoryIndex] = TrackerCategory(title: category, trackers: updatedTrackers)
-        } else {
-            let newCategory = TrackerCategory(title: category, trackers: [tracker])
-            categories.append(newCategory)
+        do {
+            let categoryCoreData = try trackerCategoryStore.fetchOrCreateCategory(title: category)
+            try trackerStore.addTracker(tracker, to: categoryCoreData)
+        } catch {
+            print("Ошибка при создании трекера: \(error)")
         }
+        dismiss(animated: true)
+    }
+}
+
+// MARK: - Store Delegates
+extension TrackersViewController: TrackerCategoryStoreDelegate, TrackerRecordStoreDelegate, TrackerStoreDelegate {
+    func trackerCategoryStoreDidUpdate() {
+        reloadData()
+    }
+    
+    func trackerRecordStoreDidUpdate() {
+        reloadData()
+    }
+    
+    func trackerStoreDidUpdate() {
         reloadData()
     }
 }

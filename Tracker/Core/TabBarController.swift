@@ -7,38 +7,68 @@
 
 import UIKit
 
+// MARK: - TabBarController
 final class TabBarController: UITabBarController {
-    
+
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupView()
+        setupViewControllers()
+        setupTabBarAppearance()
+    }
+    
+    // MARK: - Setup
+    private func setupView() {
         view.backgroundColor = .trWhite
-        
-        let trackersVC = TrackersViewController()
-        let trackersNavController = UINavigationController(rootViewController: trackersVC)
-        trackersNavController.tabBarItem = UITabBarItem(
+    }
+    
+    private func setupViewControllers() {
+        let trackers = makeNavigationController(
+            rootViewController: TrackersViewController(),
             title: "Трекеры",
-            image: UIImage(systemName: "record.circle.fill"),
-            selectedImage: nil
+            imageName: "record.circle.fill"
         )
         
-        let statisticsVC = StatisticsViewController()
-        let statisticsNavController = UINavigationController(rootViewController: statisticsVC)
-        statisticsNavController.tabBarItem = UITabBarItem(
+        let statistics = makeNavigationController(
+            rootViewController: StatisticsViewController(),
             title: "Статистика",
-            image: UIImage(systemName: "hare.fill"),
+            imageName: "hare.fill"
+        )
+        
+        viewControllers = [trackers, statistics]
+    }
+    
+    // MARK: - Navigation Helpers
+    private func makeNavigationController(
+        rootViewController: UIViewController,
+        title: String,
+        imageName: String
+    ) -> UINavigationController {
+        
+        let navController = UINavigationController(rootViewController: rootViewController)
+        
+        navController.tabBarItem = UITabBarItem(
+            title: title,
+            image: UIImage(systemName: imageName),
             selectedImage: nil
         )
         
-        self.viewControllers = [trackersNavController, statisticsNavController]
-        
+        return navController
+    }
+    
+    // MARK: - TabBar Appearance
+    private func setupTabBarAppearance() {
         tabBar.isTranslucent = false
         tabBar.tintColor = .trBlue
         
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = .trWhite
+        
         tabBar.standardAppearance = appearance
+        
         if #available(iOS 15.0, *) {
             tabBar.scrollEdgeAppearance = appearance
         }

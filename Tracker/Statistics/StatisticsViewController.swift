@@ -7,12 +7,23 @@
 
 import UIKit
 
+// MARK: - StatisticsViewController
+
 final class StatisticsViewController: UIViewController {
+    
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .trWhite
+        
+        setupView()
         setupNavigationBar()
+    }
+    
+    // MARK: - Setup
+    
+    private func setupView() {
+        view.backgroundColor = .trWhite
     }
     
     private func setupNavigationBar() {
