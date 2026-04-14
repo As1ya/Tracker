@@ -43,7 +43,7 @@ final class TrackerRecordStore: NSObject {
     // MARK: - Init
     
     convenience override init() {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        let context = CoreDataStack.shared.context
         self.init(context: context)
     }
     

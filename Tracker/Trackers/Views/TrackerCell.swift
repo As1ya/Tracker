@@ -73,6 +73,7 @@ final class TrackerCell: UICollectionViewCell {
         setupView()
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -100,11 +101,7 @@ final class TrackerCell: UICollectionViewCell {
         let image = isCompletedToday ? UIImage(systemName: "checkmark") : UIImage(systemName: "plus")
         completeButton.setImage(image?.withRenderingMode(.alwaysTemplate), for: .normal)
         
-        if isCompletedToday {
-            completeButton.backgroundColor = tracker.color.withAlphaComponent(0.3)
-        } else {
-            completeButton.backgroundColor = tracker.color
-        }
+        completeButton.backgroundColor = isCompletedToday ? tracker.color.withAlphaComponent(0.3) : tracker.color
     }
     
     // MARK: - Actions

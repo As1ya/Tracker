@@ -20,11 +20,7 @@ final class TrackerCreationViewController: UIViewController {
     private var selectedColor: UIColor?
     
     private let tableOptions: [String]
-    private let emojis: [String] = [
-        "🙂", "😻", "🌺", "🐶", "❤️", "😱",
-        "😇", "😡", "🥶", "🤔", "🙌", "🍔",
-        "🥦", "🏓", "🥇", "🎸", "🏝️", "😪"
-    ]
+    private let emojis = MockData.emojis
     private let colors = UIColor.trSelections
     
     // MARK: - UI Elements
@@ -286,7 +282,9 @@ extension TrackerCreationViewController: UITableViewDataSource, UITableViewDeleg
                 detailText = "Каждый день"
             } else if !selectedSchedule.isEmpty {
                 let order: [WeekDay] = [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
-                let sorted = selectedSchedule.sorted { order.firstIndex(of: $0)! < order.firstIndex(of: $1)! }
+                let sorted = selectedSchedule.sorted { 
+                    (order.firstIndex(of: $0) ?? 0) < (order.firstIndex(of: $1) ?? 0)
+                }
                 detailText = sorted.map { $0.shortTitle }.joined(separator: ", ")
             }
             cell.detailTextLabel?.text = detailText

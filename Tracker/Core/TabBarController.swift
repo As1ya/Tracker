@@ -28,13 +28,13 @@ final class TabBarController: UITabBarController {
         let trackers = makeNavigationController(
             rootViewController: TrackersViewController(),
             title: "Трекеры",
-            imageName: "record.circle.fill"
+            imageName: Resources.Images.trackersTab
         )
         
         let statistics = makeNavigationController(
             rootViewController: StatisticsViewController(),
             title: "Статистика",
-            imageName: "hare.fill"
+            imageName: Resources.Images.statisticsTab
         )
         
         viewControllers = [trackers, statistics]
