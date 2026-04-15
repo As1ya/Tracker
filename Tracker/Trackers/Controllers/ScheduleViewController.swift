@@ -18,9 +18,7 @@ final class ScheduleViewController: UIViewController {
     
     // MARK: - Private Properties
     private var selectedDays: Set<WeekDay> = []
-    private let days: [WeekDay] = [
-        .monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday
-    ]
+    private let days = WeekDay.allCases
     
     // MARK: - UI Elements
     private lazy var titleLabel: UILabel = {
@@ -69,8 +67,13 @@ final class ScheduleViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .trWhite
+        
+        setupView()
         setupViews()
+    }
+    
+    private func setupView() {
+        view.backgroundColor = .trWhite
     }
     
     // MARK: - Setup UI
@@ -111,17 +114,7 @@ final class ScheduleViewController: UIViewController {
     }
     
     // MARK: - Helpers
-    private func getDayName(for weekday: WeekDay) -> String {
-        switch weekday {
-        case .monday: return "Понедельник"
-        case .tuesday: return "Вторник"
-        case .wednesday: return "Среда"
-        case .thursday: return "Четверг"
-        case .friday: return "Пятница"
-        case .saturday: return "Суббота"
-        case .sunday: return "Воскресенье"
-        }
-    }
+
 }
 
 // MARK: - UITableViewDataSource & UITableViewDelegate
@@ -138,7 +131,7 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         let day = days[indexPath.row]
         
-        cell.textLabel?.text = getDayName(for: day)
+        cell.textLabel?.text = day.title
         cell.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.3)
         cell.selectionStyle = .none
         
