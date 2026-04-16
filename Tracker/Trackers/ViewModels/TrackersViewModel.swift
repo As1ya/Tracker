@@ -100,6 +100,12 @@ final class TrackersViewModel {
     func completedDays(id: UUID) -> Int {
         completedTrackers.filter { $0.trackerId == id }.count
     }
+
+    func categoryTitle(for trackerID: UUID) -> String? {
+        categories.first { category in
+            category.trackers.contains { $0.id == trackerID }
+        }?.title
+    }
     
     func toggleCompletion(for tracker: Tracker) {
         let isCompleted = isCompletedToday(id: tracker.id)

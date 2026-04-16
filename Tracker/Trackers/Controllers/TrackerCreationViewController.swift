@@ -8,17 +8,23 @@
 import UIKit
 
 final class TrackerCreationViewController: UIViewController {
+    enum Mode {
+        case create
+        case edit(original: Tracker, category: String)
+    }
     
     // MARK: - Delegate
     weak var delegate: TrackerCreationDelegate?
     
     // MARK: - Properties
     private let isHabit: Bool
+    private let mode: Mode
     private var trackerName: String = ""
     private var selectedCategory: String?
     private var selectedSchedule: [WeekDay] = []
     private var selectedEmoji: String?
     private var selectedColor: UIColor?
+    private var didApplyInitialSelections = false
     
     private let tableOptions: [String]
     private let emojis = MockData.emojis
@@ -39,7 +45,7 @@ final class TrackerCreationViewController: UIViewController {
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = isHabit ? "Новая привычка" : "Новое нерегулярное событие"
+        label.text = screenTitle
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = .trBlack
         label.textAlignment = .center
@@ -54,6 +60,7 @@ final class TrackerCreationViewController: UIViewController {
         textField.layer.cornerRadius = Resources.Constants.cornerRadius
         textField.clearButtonMode = .whileEditing
         textField.delegate = self
+        textField.text = trackerName
         
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: Resources.Constants.defaultPadding, height: Resources.Constants.cellHeight))
         textField.leftView = paddingView
@@ -117,7 +124,7 @@ final class TrackerCreationViewController: UIViewController {
     
     private lazy var createButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Создать", for: .normal)
+        button.setTitle(actionButtonTitle, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.setTitleColor(.trWhite, for: .normal)
         button.backgroundColor = .trGray 
@@ -138,9 +145,22 @@ final class TrackerCreationViewController: UIViewController {
     }()
     
     // MARK: - Init
-    init(isHabit: Bool) {
+    init(isHabit: Bool, mode: Mode = .create) {
         self.isHabit = isHabit
+        self.mode = mode
         self.tableOptions = isHabit ? ["Категория", "Расписание"] : ["Категория"]
+
+        switch mode {
+        case .create:
+            break
+        case .edit(let tracker, let category):
+            self.trackerName = tracker.name
+            self.selectedCategory = category
+            self.selectedSchedule = tracker.schedule
+            self.selectedEmoji = tracker.emoji
+            self.selectedColor = tracker.color
+        }
+
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -153,10 +173,16 @@ final class TrackerCreationViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .trWhite
         setupViews()
+        updateCreateButtonState()
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tap.cancelsTouchesInView = false
         view.addGestureRecognizer(tap)
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        applyInitialSelectionsIfNeeded()
     }
     
     // MARK: - Setup
@@ -237,9 +263,23 @@ final class TrackerCreationViewController: UIViewController {
             scheduleToSave = WeekDay.allCases
         }
         
-        let tracker = Tracker(id: UUID(), name: normalizedName, color: color, emoji: emoji, schedule: scheduleToSave, isPinned: false)
-        
-        delegate?.didCreateTracker(tracker, category: category)
+        let tracker: Tracker
+
+        switch mode {
+        case .create:
+            tracker = Tracker(id: UUID(), name: normalizedName, color: color, emoji: emoji, schedule: scheduleToSave, isPinned: false)
+            delegate?.didCreateTracker(tracker, category: category)
+        case .edit(let original, _):
+            tracker = Tracker(
+                id: original.id,
+                name: normalizedName,
+                color: color,
+                emoji: emoji,
+                schedule: scheduleToSave,
+                isPinned: original.isPinned
+            )
+            delegate?.didUpdateTracker(tracker, category: category)
+        }
     }
     
     @objc private func textFieldDidChange() {
@@ -258,6 +298,39 @@ final class TrackerCreationViewController: UIViewController {
         let isEnabled = isNameFilled && isCategorySelected && isScheduleFilled && isEmojiSelected && isColorSelected
         createButton.isEnabled = isEnabled
         createButton.backgroundColor = isEnabled ? .trBlack : .trGray
+    }
+
+    private var screenTitle: String {
+        switch mode {
+        case .create:
+            return isHabit ? "Новая привычка" : "Новое нерегулярное событие"
+        case .edit:
+            return "Редактирование трекера"
+        }
+    }
+
+    private var actionButtonTitle: String {
+        switch mode {
+        case .create:
+            return "Создать"
+        case .edit:
+            return "Сохранить"
+        }
+    }
+
+    private func applyInitialSelectionsIfNeeded() {
+        guard !didApplyInitialSelections else { return }
+        didApplyInitialSelections = true
+
+        if let selectedEmoji, let emojiIndex = emojis.firstIndex(of: selectedEmoji) {
+            let indexPath = IndexPath(item: emojiIndex, section: 0)
+            emojiCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+        }
+
+        if let selectedColor, let colorIndex = colors.firstIndex(where: { $0.isEqual(selectedColor) }) {
+            let indexPath = IndexPath(item: colorIndex, section: 0)
+            colorCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+        }
     }
 }
 

@@ -238,6 +238,10 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
         
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            let editAction = UIAction(title: "Редактировать") { _ in
+                self?.showEditTracker(tracker)
+            }
+
             let pinTitle = tracker.isPinned ? "Открепить" : "Закрепить"
             let pinAction = UIAction(title: pinTitle) { _ in
                 self?.viewModel.togglePin(for: tracker)
@@ -247,7 +251,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
                 self?.showDeleteConfirmation(tracker)
             }
             
-            return UIMenu(title: "", children: [pinAction, deleteAction])
+            return UIMenu(title: "", children: [editAction, pinAction, deleteAction])
         }
     }
     
@@ -268,6 +272,21 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         alert.addAction(cancelAction)
         
         present(alert, animated: true)
+    }
+
+    private func showEditTracker(_ tracker: Tracker) {
+        guard let category = viewModel.categoryTitle(for: tracker.id) else {
+            showError(message: "Не удалось определить категорию трекера.")
+            return
+        }
+
+        let isHabit = tracker.schedule.count != WeekDay.allCases.count
+        let viewController = TrackerCreationViewController(
+            isHabit: isHabit,
+            mode: .edit(original: tracker, category: category)
+        )
+        viewController.delegate = self
+        present(viewController, animated: true)
     }
 }
 
@@ -293,6 +312,11 @@ extension TrackersViewController: TrackerCellDelegate {
 extension TrackersViewController: TrackerCreationDelegate {
     func didCreateTracker(_ tracker: Tracker, category: String) {
         viewModel.addTracker(tracker, to: category)
+        dismiss(animated: true)
+    }
+
+    func didUpdateTracker(_ tracker: Tracker, category: String) {
+        viewModel.updateTracker(tracker, in: category)
         dismiss(animated: true)
     }
 }

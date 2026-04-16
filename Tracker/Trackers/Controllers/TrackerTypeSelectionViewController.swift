@@ -10,6 +10,7 @@ import UIKit
 // MARK: - TrackerCreationDelegate Protocol
 protocol TrackerCreationDelegate: AnyObject {
     func didCreateTracker(_ tracker: Tracker, category: String)
+    func didUpdateTracker(_ tracker: Tracker, category: String)
 }
 
 // MARK: - TrackerTypeSelectionViewController
