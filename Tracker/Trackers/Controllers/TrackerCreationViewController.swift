@@ -15,6 +15,7 @@ final class TrackerCreationViewController: UIViewController {
     // MARK: - Properties
     private let isHabit: Bool
     private var trackerName: String = ""
+    private var selectedCategory: String?
     private var selectedSchedule: [WeekDay] = []
     private var selectedEmoji: String?
     private var selectedColor: UIColor?
@@ -50,11 +51,11 @@ final class TrackerCreationViewController: UIViewController {
         let textField = UITextField()
         textField.placeholder = "Введите название трекера"
         textField.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.3)
-        textField.layer.cornerRadius = 16
+        textField.layer.cornerRadius = Resources.Constants.cornerRadius
         textField.clearButtonMode = .whileEditing
         textField.delegate = self
         
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 75))
+        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: Resources.Constants.defaultPadding, height: Resources.Constants.cellHeight))
         textField.leftView = paddingView
         textField.leftViewMode = .always
         
@@ -68,9 +69,9 @@ final class TrackerCreationViewController: UIViewController {
         table.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         table.delegate = self
         table.dataSource = self
-        table.layer.cornerRadius = 16
+        table.layer.cornerRadius = Resources.Constants.cornerRadius
         table.isScrollEnabled = false
-        table.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        table.separatorInset = UIEdgeInsets(top: 0, left: Resources.Constants.defaultPadding, bottom: 0, right: Resources.Constants.defaultPadding)
         table.translatesAutoresizingMaskIntoConstraints = false
         return table
     }()
@@ -106,7 +107,7 @@ final class TrackerCreationViewController: UIViewController {
         button.setTitle("Отменить", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.setTitleColor(.trRed, for: .normal)
-        button.layer.cornerRadius = 16
+        button.layer.cornerRadius = Resources.Constants.cornerRadius
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.trRed.cgColor
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -120,7 +121,7 @@ final class TrackerCreationViewController: UIViewController {
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.setTitleColor(.trWhite, for: .normal)
         button.backgroundColor = .trGray 
-        button.layer.cornerRadius = 16
+        button.layer.cornerRadius = Resources.Constants.cornerRadius
         button.isEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(createTapped), for: .touchUpInside)
@@ -170,7 +171,7 @@ final class TrackerCreationViewController: UIViewController {
         contentView.addSubview(colorCollectionView)
         contentView.addSubview(buttonStackView)
         
-        let tableHeight: CGFloat = CGFloat(tableOptions.count * 75)
+        let tableHeight: CGFloat = CGFloat(tableOptions.count) * Resources.Constants.cellHeight
         
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 27),
@@ -187,14 +188,14 @@ final class TrackerCreationViewController: UIViewController {
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
-            nameTextField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
-            nameTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            nameTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            nameTextField.heightAnchor.constraint(equalToConstant: 75),
+            nameTextField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Resources.Constants.extraLargePadding),
+            nameTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Resources.Constants.defaultPadding),
+            nameTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Resources.Constants.defaultPadding),
+            nameTextField.heightAnchor.constraint(equalToConstant: Resources.Constants.cellHeight),
             
-            tableView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 24),
-            tableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            tableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            tableView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: Resources.Constants.extraLargePadding),
+            tableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Resources.Constants.defaultPadding),
+            tableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Resources.Constants.defaultPadding),
             tableView.heightAnchor.constraint(equalToConstant: tableHeight),
             
             emojiCollectionView.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 32),
@@ -202,16 +203,16 @@ final class TrackerCreationViewController: UIViewController {
             emojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             emojiCollectionView.heightAnchor.constraint(equalToConstant: 204),
             
-            colorCollectionView.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor, constant: 16),
+            colorCollectionView.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor, constant: Resources.Constants.defaultPadding),
             colorCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             colorCollectionView.heightAnchor.constraint(equalToConstant: 204),
             
-            buttonStackView.topAnchor.constraint(equalTo: colorCollectionView.bottomAnchor, constant: 16),
-            buttonStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            buttonStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            buttonStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
-            buttonStackView.heightAnchor.constraint(equalToConstant: 60)
+            buttonStackView.topAnchor.constraint(equalTo: colorCollectionView.bottomAnchor, constant: Resources.Constants.defaultPadding),
+            buttonStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Resources.Constants.largePadding),
+            buttonStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Resources.Constants.largePadding),
+            buttonStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Resources.Constants.defaultPadding),
+            buttonStackView.heightAnchor.constraint(equalToConstant: Resources.Constants.buttonHeight)
         ])
     }
     
@@ -225,7 +226,9 @@ final class TrackerCreationViewController: UIViewController {
     }
     
     @objc private func createTapped() {
-        guard let emoji = selectedEmoji, let color = selectedColor else { return }
+        guard let emoji = selectedEmoji, let color = selectedColor, let category = selectedCategory else { return }
+        let normalizedName = trackerName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalizedName.isEmpty else { return }
         
         let scheduleToSave: [WeekDay]
         if isHabit {
@@ -234,24 +237,25 @@ final class TrackerCreationViewController: UIViewController {
             scheduleToSave = WeekDay.allCases
         }
         
-        let tracker = Tracker(id: UUID(), name: trackerName, color: color, emoji: emoji, schedule: scheduleToSave)
+        let tracker = Tracker(id: UUID(), name: normalizedName, color: color, emoji: emoji, schedule: scheduleToSave, isPinned: false)
         
-        delegate?.didCreateTracker(tracker, category: "Важное")
+        delegate?.didCreateTracker(tracker, category: category)
     }
     
     @objc private func textFieldDidChange() {
-        trackerName = nameTextField.text ?? ""
+        trackerName = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         updateCreateButtonState()
     }
     
     // MARK: - Helpers
     private func updateCreateButtonState() {
         let isNameFilled = !trackerName.isEmpty
+        let isCategorySelected = selectedCategory != nil
         let isScheduleFilled = !isHabit || !selectedSchedule.isEmpty
         let isEmojiSelected = selectedEmoji != nil
         let isColorSelected = selectedColor != nil
         
-        let isEnabled = isNameFilled && isScheduleFilled && isEmojiSelected && isColorSelected
+        let isEnabled = isNameFilled && isCategorySelected && isScheduleFilled && isEmojiSelected && isColorSelected
         createButton.isEnabled = isEnabled
         createButton.backgroundColor = isEnabled ? .trBlack : .trGray
     }
@@ -276,7 +280,10 @@ extension TrackerCreationViewController: UITableViewDataSource, UITableViewDeleg
         cell.accessoryType = .disclosureIndicator
         cell.selectionStyle = .none
         
-        if option == "Расписание" {
+        if option == "Категория" {
+            cell.detailTextLabel?.text = selectedCategory
+            cell.detailTextLabel?.textColor = .trGray
+        } else if option == "Расписание" {
             var detailText = ""
             if selectedSchedule.count == 7 {
                 detailText = "Каждый день"
@@ -297,11 +304,24 @@ extension TrackerCreationViewController: UITableViewDataSource, UITableViewDeleg
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selection = tableOptions[indexPath.row]
         
-        if selection == "Расписание" {
+        if selection == "Категория" {
+            let vc = CategoryViewController(selectedCategory: selectedCategory)
+            vc.delegate = self
+            present(vc, animated: true)
+        } else if selection == "Расписание" {
             let vc = ScheduleViewController(selectedDays: selectedSchedule)
             vc.delegate = self
             present(vc, animated: true)
         }
+    }
+}
+
+// MARK: - CategoryViewControllerDelegate
+extension TrackerCreationViewController: CategoryViewControllerDelegate {
+    func didSelectCategory(_ category: String) {
+        self.selectedCategory = category
+        updateCreateButtonState()
+        tableView.reloadData()
     }
 }
 

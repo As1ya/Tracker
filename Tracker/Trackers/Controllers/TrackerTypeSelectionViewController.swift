@@ -35,7 +35,7 @@ final class TrackerTypeSelectionViewController: UIViewController {
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .trBlack
         button.setTitleColor(.trWhite, for: .normal)
-        button.layer.cornerRadius = 16
+        button.layer.cornerRadius = Resources.Constants.cornerRadius
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(habitTapped), for: .touchUpInside)
         return button
@@ -47,7 +47,7 @@ final class TrackerTypeSelectionViewController: UIViewController {
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .trBlack
         button.setTitleColor(.trWhite, for: .normal)
-        button.layer.cornerRadius = 16
+        button.layer.cornerRadius = Resources.Constants.cornerRadius
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(eventTapped), for: .touchUpInside)
         return button
@@ -71,14 +71,14 @@ final class TrackerTypeSelectionViewController: UIViewController {
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             habitButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -40),
-            habitButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            habitButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            habitButton.heightAnchor.constraint(equalToConstant: 60),
+            habitButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Resources.Constants.largePadding),
+            habitButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Resources.Constants.largePadding),
+            habitButton.heightAnchor.constraint(equalToConstant: Resources.Constants.buttonHeight),
             
-            eventButton.topAnchor.constraint(equalTo: habitButton.bottomAnchor, constant: 16),
-            eventButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            eventButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            eventButton.heightAnchor.constraint(equalToConstant: 60)
+            eventButton.topAnchor.constraint(equalTo: habitButton.bottomAnchor, constant: Resources.Constants.defaultPadding),
+            eventButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Resources.Constants.largePadding),
+            eventButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Resources.Constants.largePadding),
+            eventButton.heightAnchor.constraint(equalToConstant: Resources.Constants.buttonHeight)
         ])
     }
     

@@ -36,7 +36,7 @@ final class ScheduleViewController: UIViewController {
         table.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         table.delegate = self
         table.dataSource = self
-        table.layer.cornerRadius = 16
+        table.layer.cornerRadius = Resources.Constants.cornerRadius
         table.isScrollEnabled = false
         table.translatesAutoresizingMaskIntoConstraints = false
         return table
@@ -48,7 +48,7 @@ final class ScheduleViewController: UIViewController {
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .trBlack
         button.setTitleColor(.trWhite, for: .normal)
-        button.layer.cornerRadius = 16
+        button.layer.cornerRadius = Resources.Constants.cornerRadius
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(doneTapped), for: .touchUpInside)
         return button
@@ -87,14 +87,14 @@ final class ScheduleViewController: UIViewController {
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            tableView.heightAnchor.constraint(equalToConstant: 75 * 7),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Resources.Constants.defaultPadding),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Resources.Constants.defaultPadding),
+            tableView.heightAnchor.constraint(equalToConstant: Resources.Constants.cellHeight * 7),
             
-            doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            doneButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            doneButton.heightAnchor.constraint(equalToConstant: 60)
+            doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Resources.Constants.largePadding),
+            doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Resources.Constants.largePadding),
+            doneButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -Resources.Constants.defaultPadding),
+            doneButton.heightAnchor.constraint(equalToConstant: Resources.Constants.buttonHeight)
         ])
     }
     
@@ -124,7 +124,7 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 75
+        return Resources.Constants.cellHeight
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

@@ -36,8 +36,6 @@ final class TrackerCategoryStore: NSObject {
             cacheName: nil
         )
         controller.delegate = self
-        
-        try? controller.performFetch()
         return controller
     }()
     
@@ -57,20 +55,31 @@ final class TrackerCategoryStore: NSObject {
     // MARK: - Public Methods
     
     func createCategory(title: String) throws -> TrackerCategoryCoreData {
+        let normalizedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalizedTitle.isEmpty else {
+            throw StoreError.emptyTitle
+        }
+
+        if try fetchCategoryCoreData(title: normalizedTitle) != nil {
+            throw StoreError.categoryAlreadyExists
+        }
+
         let category = TrackerCategoryCoreData(context: context)
-        category.title = title
+        category.title = normalizedTitle
         try context.save()
         return category
     }
     
     func fetchAllCategories() throws -> [TrackerCategory] {
+        try fetchedResultsController.performFetch()
         let objects = fetchedResultsController.fetchedObjects ?? []
-        return objects.compactMap { try? trackerCategory(from: $0) }
+        return try objects.map { try trackerCategory(from: $0) }
     }
     
     func fetchCategoryCoreData(title: String) throws -> TrackerCategoryCoreData? {
+        let normalizedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let request = TrackerCategoryCoreData.fetchRequest()
-        request.predicate = NSPredicate(format: "title == %@", title)
+        request.predicate = NSPredicate(format: "title == %@", normalizedTitle)
         return try context.fetch(request).first
     }
     
@@ -80,7 +89,37 @@ final class TrackerCategoryStore: NSObject {
         }
         return try createCategory(title: title)
     }
-    
+
+    func updateCategory(oldTitle: String, newTitle: String) throws {
+        let normalizedNewTitle = newTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalizedNewTitle.isEmpty else {
+            throw StoreError.emptyTitle
+        }
+
+        let request = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "title == %@", oldTitle)
+        
+        if let category = try context.fetch(request).first {
+            let duplicate = try fetchCategoryCoreData(title: normalizedNewTitle)
+            if let duplicate, duplicate.objectID != category.objectID {
+                throw StoreError.categoryAlreadyExists
+            }
+
+            category.title = normalizedNewTitle
+            try context.save()
+        }
+    }
+
+    func deleteCategoryByTitle(_ title: String) throws {
+        let request = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "title == %@", title)
+        
+        if let category = try context.fetch(request).first {
+            context.delete(category)
+            try context.save()
+        }
+    }
+
     func deleteCategory(_ category: TrackerCategoryCoreData) throws {
         context.delete(category)
         try context.save()
@@ -89,12 +128,11 @@ final class TrackerCategoryStore: NSObject {
     // MARK: - Private Methods
     
     private func trackerCategory(from coreData: TrackerCategoryCoreData) throws -> TrackerCategory {
-        guard let title = coreData.title else {
-            throw StoreError.decodingError
-        }
-        
-        let trackersCoreData = coreData.trackers as? Set<TrackerCoreData> ?? []
-        let trackers = trackersCoreData.compactMap { try? trackerStore.tracker(from: $0) }
+        let title = coreData.title ?? ""
+        let trackerObjects = coreData.trackers?.allObjects as? [TrackerCoreData] ?? []
+        let trackers = try trackerObjects
+            .map { try trackerStore.tracker(from: $0) }
+            .sorted { $0.name < $1.name }
         
         return TrackerCategory(title: title, trackers: trackers)
     }
