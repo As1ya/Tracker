@@ -256,12 +256,7 @@ final class TrackerCreationViewController: UIViewController {
         let normalizedName = trackerName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !normalizedName.isEmpty else { return }
         
-        let scheduleToSave: [WeekDay]
-        if isHabit {
-            scheduleToSave = selectedSchedule
-        } else {
-            scheduleToSave = WeekDay.allCases
-        }
+        let scheduleToSave: [WeekDay] = isHabit ? selectedSchedule : WeekDay.allCases
         
         let tracker: Tracker
 

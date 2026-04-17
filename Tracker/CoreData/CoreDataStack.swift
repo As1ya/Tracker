@@ -71,7 +71,7 @@ enum CoreDataStackError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .saveFailed:
-            return "Не удалось сохранить данные."
+            "Не удалось сохранить данные."
         }
     }
 }

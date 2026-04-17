@@ -27,7 +27,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private func setupWindow(_ windowScene: UIWindowScene) {
         let window = UIWindow(windowScene: windowScene)
         
-        let hasSeenOnboarding = UserDefaults.standard.bool(forKey: Resources.UserDefaultsKeys.hasSeenOnboarding)
+        let hasSeenOnboarding = UserDefaultsService.shared.hasSeenOnboarding
         
         if hasSeenOnboarding {
             window.rootViewController = TabBarController()

@@ -67,7 +67,7 @@ final class OnboardingViewController: UIViewController {
         }
         let button = UIButton(configuration: config)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(ctaTapped), for: .touchUpInside)
+        button.addAction(UIAction { [weak self] _ in self?.ctaTapped() }, for: .touchUpInside)
         return button
     }()
 
@@ -115,7 +115,7 @@ final class OnboardingViewController: UIViewController {
     // MARK: - Actions
 
     @objc private func ctaTapped() {
-        UserDefaults.standard.set(true, forKey: Resources.UserDefaultsKeys.hasSeenOnboarding)
+        UserDefaultsService.shared.hasSeenOnboarding = true
         
         guard let window = view.window else { return }
             
