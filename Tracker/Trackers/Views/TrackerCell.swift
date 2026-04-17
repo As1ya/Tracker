@@ -66,6 +66,15 @@ final class TrackerCell: UICollectionViewCell {
         return button
     }()
     
+    private let pinImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(systemName: "pin.fill")
+        imageView.tintColor = .white
+        imageView.isHidden = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
     // MARK: - Init
     
     override init(frame: CGRect) {
@@ -84,6 +93,7 @@ final class TrackerCell: UICollectionViewCell {
         nameLabel.text = tracker.name
         emojiLabel.text = tracker.emoji
         topContainerView.backgroundColor = tracker.color
+        pinImageView.isHidden = !tracker.isPinned
         
         let formatString: String
         let remainder10 = completedDays % 10
@@ -116,6 +126,7 @@ final class TrackerCell: UICollectionViewCell {
         contentView.addSubview(topContainerView)
         topContainerView.addSubview(emojiLabel)
         topContainerView.addSubview(nameLabel)
+        topContainerView.addSubview(pinImageView)
         
         contentView.addSubview(daysLabel)
         contentView.addSubview(completeButton)
@@ -128,23 +139,29 @@ final class TrackerCell: UICollectionViewCell {
             topContainerView.heightAnchor.constraint(equalToConstant: 90),
             
             // Emoji Label
-            emojiLabel.leadingAnchor.constraint(equalTo: topContainerView.leadingAnchor, constant: 12),
-            emojiLabel.topAnchor.constraint(equalTo: topContainerView.topAnchor, constant: 12),
+            emojiLabel.leadingAnchor.constraint(equalTo: topContainerView.leadingAnchor, constant: Resources.Constants.mediumPadding),
+            emojiLabel.topAnchor.constraint(equalTo: topContainerView.topAnchor, constant: Resources.Constants.mediumPadding),
             emojiLabel.widthAnchor.constraint(equalToConstant: 24),
             emojiLabel.heightAnchor.constraint(equalToConstant: 24),
             
+            // Pin Image View
+            pinImageView.trailingAnchor.constraint(equalTo: topContainerView.trailingAnchor, constant: -Resources.Constants.mediumPadding),
+            pinImageView.topAnchor.constraint(equalTo: topContainerView.topAnchor, constant: Resources.Constants.mediumPadding),
+            pinImageView.widthAnchor.constraint(equalToConstant: 24),
+            pinImageView.heightAnchor.constraint(equalToConstant: 24),
+            
             // Name Label
-            nameLabel.leadingAnchor.constraint(equalTo: topContainerView.leadingAnchor, constant: 12),
-            nameLabel.trailingAnchor.constraint(equalTo: topContainerView.trailingAnchor, constant: -12),
-            nameLabel.bottomAnchor.constraint(equalTo: topContainerView.bottomAnchor, constant: -12),
+            nameLabel.leadingAnchor.constraint(equalTo: topContainerView.leadingAnchor, constant: Resources.Constants.mediumPadding),
+            nameLabel.trailingAnchor.constraint(equalTo: topContainerView.trailingAnchor, constant: -Resources.Constants.mediumPadding),
+            nameLabel.bottomAnchor.constraint(equalTo: topContainerView.bottomAnchor, constant: -Resources.Constants.mediumPadding),
             
             // Days Label
-            daysLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            daysLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Resources.Constants.mediumPadding),
             daysLabel.centerYAnchor.constraint(equalTo: completeButton.centerYAnchor),
             
             // Complete Button
-            completeButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
-            completeButton.topAnchor.constraint(equalTo: topContainerView.bottomAnchor, constant: 8),
+            completeButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Resources.Constants.mediumPadding),
+            completeButton.topAnchor.constraint(equalTo: topContainerView.bottomAnchor, constant: Resources.Constants.smallPadding),
             completeButton.widthAnchor.constraint(equalToConstant: 34),
             completeButton.heightAnchor.constraint(equalToConstant: 34)
         ])

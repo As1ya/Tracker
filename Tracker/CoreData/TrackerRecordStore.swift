@@ -35,8 +35,6 @@ final class TrackerRecordStore: NSObject {
             cacheName: nil
         )
         controller.delegate = self
-        
-        try? controller.performFetch()
         return controller
     }()
     
@@ -59,9 +57,21 @@ final class TrackerRecordStore: NSObject {
         fetchRequest.predicate = NSPredicate(format: "id == %@", trackerId as CVarArg)
         
         guard let trackerCoreData = try context.fetch(fetchRequest).first else { return }
+
+        let normalizedDate = Calendar.current.startOfDay(for: date)
+        let duplicateRequest = TrackerRecordCoreData.fetchRequest()
+        duplicateRequest.predicate = NSPredicate(
+            format: "tracker.id == %@ AND date == %@",
+            trackerId as CVarArg,
+            normalizedDate as CVarArg
+        )
+
+        if try context.fetch(duplicateRequest).isEmpty == false {
+            throw StoreError.duplicateRecord
+        }
         
         let recordCoreData = TrackerRecordCoreData(context: context)
-        recordCoreData.date = Calendar.current.startOfDay(for: date)
+        recordCoreData.date = normalizedDate
         recordCoreData.tracker = trackerCoreData
         
         try context.save()
@@ -86,12 +96,13 @@ final class TrackerRecordStore: NSObject {
     }
     
     func fetchAllRecords() throws -> [TrackerRecord] {
+        try fetchedResultsController.performFetch()
         let objects = fetchedResultsController.fetchedObjects ?? []
-        return objects.compactMap { recordCoreData in
+        return try objects.map { recordCoreData in
             guard
                 let date = recordCoreData.date,
                 let trackerId = recordCoreData.tracker?.id
-            else { return nil }
+            else { throw StoreError.decodingError }
             
             return TrackerRecord(trackerId: trackerId, date: date)
         }

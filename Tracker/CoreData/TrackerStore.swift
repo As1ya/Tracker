@@ -35,8 +35,6 @@ final class TrackerStore: NSObject {
             cacheName: nil
         )
         controller.delegate = self
-        
-        try? controller.performFetch()
         return controller
     }()
     
@@ -59,21 +57,75 @@ final class TrackerStore: NSObject {
         trackerCoreData.id = tracker.id
         trackerCoreData.name = tracker.name
         trackerCoreData.emoji = tracker.emoji
+        trackerCoreData.isPinned = tracker.isPinned
         trackerCoreData.colorHex = UIColorMarshalling.hexString(from: tracker.color)
         trackerCoreData.schedule = tracker.schedule.map { String($0.rawValue) }.joined(separator: ",")
         trackerCoreData.category = category
         
         try context.save()
     }
-    
-    func fetchTrackers() throws -> [Tracker] {
-        let objects = fetchedResultsController.fetchedObjects ?? []
-        return objects.compactMap { try? tracker(from: $0) }
+
+    func updateTracker(_ tracker: Tracker, in categoryTitle: String) throws {
+        let request = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+        
+        guard let trackerCoreData = try context.fetch(request).first else { return }
+        
+        trackerCoreData.name = tracker.name
+        trackerCoreData.emoji = tracker.emoji
+        trackerCoreData.colorHex = UIColorMarshalling.hexString(from: tracker.color)
+        trackerCoreData.schedule = tracker.schedule.map { String($0.rawValue) }.joined(separator: ",")
+        trackerCoreData.isPinned = tracker.isPinned
+        
+        let categoryRequest = TrackerCategoryCoreData.fetchRequest()
+        categoryRequest.predicate = NSPredicate(format: "title == %@", categoryTitle)
+        if let category = try context.fetch(categoryRequest).first {
+            trackerCoreData.category = category
+        }
+        
+        try context.save()
+    }
+
+    func togglePin(for tracker: Tracker) throws {
+        let request = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+        
+        if let trackerCoreData = try context.fetch(request).first {
+            trackerCoreData.isPinned.toggle()
+            try context.save()
+        }
+    }
+    func updatePredicate(searchText: String?, weekday: WeekDay) throws {
+        var predicates: [NSPredicate] = []
+        
+        // Filter by weekday
+        let weekdayPredicate = NSPredicate(format: "schedule CONTAINS %@", String(weekday.rawValue))
+        predicates.append(weekdayPredicate)
+        
+        // Filter by search text
+        if let searchText = searchText, !searchText.isEmpty {
+            let searchPredicate = NSPredicate(format: "name CONTAINS[cd] %@", searchText)
+            predicates.append(searchPredicate)
+        }
+        
+        fetchedResultsController.fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+        try fetchedResultsController.performFetch()
     }
     
-    func deleteTracker(_ tracker: TrackerCoreData) throws {
-        context.delete(tracker)
-        try context.save()
+    func fetchTrackers() throws -> [Tracker] {
+        try fetchedResultsController.performFetch()
+        let objects = fetchedResultsController.fetchedObjects ?? []
+        return try objects.map { try tracker(from: $0) }
+    }
+    
+    func deleteTracker(_ tracker: Tracker) throws {
+        let request = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+        
+        if let trackerCoreData = try context.fetch(request).first {
+            context.delete(trackerCoreData)
+            try context.save()
+        }
     }
     
     // MARK: - Conversion
@@ -90,8 +142,9 @@ final class TrackerStore: NSObject {
         
         let color = UIColorMarshalling.color(from: colorHex)
         let schedule = parseSchedule(coreData.schedule)
+        let isPinned = coreData.isPinned
         
-        return Tracker(id: id, name: name, color: color, emoji: emoji, schedule: schedule)
+        return Tracker(id: id, name: name, color: color, emoji: emoji, schedule: schedule, isPinned: isPinned)
     }
     
     // MARK: - Private Methods
@@ -117,4 +170,22 @@ extension TrackerStore: NSFetchedResultsControllerDelegate {
 
 enum StoreError: Error {
     case decodingError
+    case duplicateRecord
+    case categoryAlreadyExists
+    case emptyTitle
+}
+
+extension StoreError: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .decodingError:
+            return "Не удалось прочитать сохранённые данные."
+        case .duplicateRecord:
+            return "Запись за этот день уже существует."
+        case .categoryAlreadyExists:
+            return "Категория с таким названием уже существует."
+        case .emptyTitle:
+            return "Название не может быть пустым."
+        }
+    }
 }
