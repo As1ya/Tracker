@@ -16,6 +16,19 @@ final class TrackersViewController: UIViewController {
     private var currentDate: Date = Date()
     
     // MARK: - UI Elements
+    private lazy var filterButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(L10n.Filters.title, for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        button.backgroundColor = .systemBlue
+        button.layer.cornerRadius = 16
+        button.isHidden = true
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
     private let searchController = UISearchController(searchResultsController: nil)
     
     private lazy var datePicker: UIDatePicker = {
@@ -53,7 +66,7 @@ final class TrackersViewController: UIViewController {
     
     private lazy var placeholderLabel: UILabel = {
         let label = UILabel()
-        label.text = "Что будем отслеживать?"
+        label.text = L10n.Trackers.EmptyPlaceholder.noTrackers
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         label.textColor = .label
         label.textAlignment = .center
@@ -80,6 +93,18 @@ final class TrackersViewController: UIViewController {
         setupNavigationBar()
         setupViews()
         bind()
+        
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 80, right: 0)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        AnalyticsService.shared.report(event: "open", screen: "Main")
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        AnalyticsService.shared.report(event: "close", screen: "Main")
     }
     
     // MARK: - Setup
@@ -97,10 +122,16 @@ final class TrackersViewController: UIViewController {
         viewModel.onError = { [weak self] message in
             self?.showError(message: message)
         }
+        
+        viewModel.onDateDidReset = { [weak self] in
+            guard let self = self else { return }
+            self.datePicker.date = Date()
+            self.currentDate = Date()
+        }
     }
     
     private func setupNavigationBar() {
-        title = "Трекеры"
+        title = L10n.Trackers.title
         navigationController?.navigationBar.prefersLargeTitles = true
         
         let addButton = UIBarButtonItem(
@@ -116,16 +147,25 @@ final class TrackersViewController: UIViewController {
         
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = "Поиск"
+        searchController.searchBar.placeholder = L10n.Trackers.Search.placeholder
         navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
         definesPresentationContext = true
     }
     
     // MARK: - Actions
     @objc private func addButtonTapped() {
+        AnalyticsService.shared.report(event: "click", screen: "Main", item: "add_track")
         let selectionVC = TrackerTypeSelectionViewController()
         selectionVC.delegate = self
         present(selectionVC, animated: true)
+    }
+    
+    @objc private func filterButtonTapped() {
+        AnalyticsService.shared.report(event: "click", screen: "Main", item: "filter")
+        let vc = FiltersViewController(selectedFilter: .all) // We should probably store the current filter in VC too or get from VM
+        vc.delegate = self
+        present(vc, animated: true)
     }
     
     @objc private func dateChanged() {
@@ -140,20 +180,22 @@ final class TrackersViewController: UIViewController {
         placeholderImageView.isHidden = !isEmpty
         placeholderLabel.isHidden = !isEmpty
         
+        filterButton.isHidden = isEmpty && !isSearch
+        
         if isEmpty {
             if isSearch {
-                placeholderImageView.image = UIImage(systemName: Resources.Images.searchPrefix)
-                placeholderLabel.text = "Ничего не найдено"
+                placeholderImageView.image = UIImage(named: Resources.Images.face)
+                placeholderLabel.text = L10n.Trackers.EmptyPlaceholder.notFound
             } else {
                 placeholderImageView.image = UIImage(named: Resources.Images.emptyTrackers)
-                placeholderLabel.text = "Что будем отслеживать?"
+                placeholderLabel.text = L10n.Trackers.EmptyPlaceholder.noTrackers
             }
         }
     }
 
     private func showError(message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        let alert = UIAlertController(title: L10n.Trackers.Alert.errorTitle, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: L10n.Trackers.Alert.ok, style: .default))
         present(alert, animated: true)
     }
 }
@@ -165,6 +207,7 @@ private extension TrackersViewController {
         view.addSubview(collectionView)
         view.addSubview(placeholderImageView)
         view.addSubview(placeholderLabel)
+        view.addSubview(filterButton)
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -178,7 +221,12 @@ private extension TrackersViewController {
             placeholderImageView.heightAnchor.constraint(equalToConstant: Resources.Constants.iconSize),
             
             placeholderLabel.topAnchor.constraint(equalTo: placeholderImageView.bottomAnchor, constant: Resources.Constants.smallPadding),
-            placeholderLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            placeholderLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
+            filterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            filterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            filterButton.widthAnchor.constraint(equalToConstant: 114),
+            filterButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
 }
@@ -238,16 +286,18 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
         
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
-            let editAction = UIAction(title: "Редактировать") { _ in
+            let editAction = UIAction(title: L10n.Trackers.ContextMenu.edit) { _ in
+                AnalyticsService.shared.report(event: "click", screen: "Main", item: "edit")
                 self?.showEditTracker(tracker)
             }
 
-            let pinTitle = tracker.isPinned ? "Открепить" : "Закрепить"
+            let pinTitle = tracker.isPinned ? L10n.Trackers.ContextMenu.unpin : L10n.Trackers.ContextMenu.pin
             let pinAction = UIAction(title: pinTitle) { _ in
                 self?.viewModel.togglePin(for: tracker)
             }
             
-            let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { _ in
+            let deleteAction = UIAction(title: L10n.Trackers.ContextMenu.delete, attributes: .destructive) { _ in
+                AnalyticsService.shared.report(event: "click", screen: "Main", item: "delete")
                 self?.showDeleteConfirmation(tracker)
             }
             
@@ -257,16 +307,16 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     
     private func showDeleteConfirmation(_ tracker: Tracker) {
         let alert = UIAlertController(
-            title: "Уверены, что хотите удалить трекер?",
+            title: L10n.Trackers.Alert.deleteConfirmationTitle,
             message: nil,
             preferredStyle: .actionSheet
         )
         
-        let deleteAction = UIAlertAction(title: "Удалить", style: .destructive) { [weak self] _ in
+        let deleteAction = UIAlertAction(title: L10n.Trackers.ContextMenu.delete, style: .destructive) { [weak self] _ in
             self?.viewModel.deleteTracker(tracker)
         }
         
-        let cancelAction = UIAlertAction(title: "Отменить", style: .cancel)
+        let cancelAction = UIAlertAction(title: L10n.Trackers.Alert.cancel, style: .cancel)
         
         alert.addAction(deleteAction)
         alert.addAction(cancelAction)
@@ -276,13 +326,12 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 
     private func showEditTracker(_ tracker: Tracker) {
         guard let category = viewModel.categoryTitle(for: tracker.id) else {
-            showError(message: "Не удалось определить категорию трекера.")
+            showError(message: L10n.CoreData.unknownCategory)
             return
         }
 
-        let isHabit = tracker.schedule.count != WeekDay.allCases.count
         let viewController = TrackerCreationViewController(
-            isHabit: isHabit,
+            isHabit: tracker.isHabit,
             mode: .edit(original: tracker, category: category)
         )
         viewController.delegate = self
@@ -290,17 +339,17 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
+// MARK: - FiltersViewControllerDelegate
+extension TrackersViewController: FiltersViewControllerDelegate {
+    func didSelectFilter(_ filter: TrackerFilter) {
+        viewModel.updateFilter(filter)
+    }
+}
+
 // MARK: - TrackerCellDelegate
 extension TrackersViewController: TrackerCellDelegate {
     func trackerCellDidTapCompleteButton(_ cell: TrackerCell) {
-        let today = Date()
-        let startOfToday = Calendar.current.startOfDay(for: today)
-        let startOfSelectedDate = Calendar.current.startOfDay(for: currentDate)
-        
-        if startOfSelectedDate > startOfToday {
-            return // Cannot complete a tracker for a future date
-        }
-        
+        AnalyticsService.shared.report(event: "click", screen: "Main", item: "track")
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
         

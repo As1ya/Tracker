@@ -27,13 +27,13 @@ final class TabBarController: UITabBarController {
     private func setupViewControllers() {
         let trackers = makeNavigationController(
             rootViewController: TrackersViewController(),
-            title: "Трекеры",
+            title: L10n.Trackers.title,
             imageName: Resources.Images.trackersTab
         )
         
         let statistics = makeNavigationController(
             rootViewController: StatisticsViewController(),
-            title: "Статистика",
+            title: L10n.Statistics.title,
             imageName: Resources.Images.statisticsTab
         )
         

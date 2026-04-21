@@ -95,18 +95,13 @@ final class TrackerCell: UICollectionViewCell {
         topContainerView.backgroundColor = tracker.color
         pinImageView.isHidden = !tracker.isPinned
         
-        let formatString: String
-        let remainder10 = completedDays % 10
-        let remainder100 = completedDays % 100
-        
-        if remainder10 == 1 && remainder100 != 11 {
-            formatString = "%d день"
-        } else if (2...4).contains(remainder10) && !(12...14).contains(remainder100) {
-            formatString = "%d дня"
+        if tracker.isHabit {
+            let format = NSLocalizedString("trackers.numberOfDays", comment: "")
+            daysLabel.text = String.localizedStringWithFormat(format, completedDays)
         } else {
-            formatString = "%d дней"
+            daysLabel.text = isCompletedToday ? L10n.Trackers.done : ""
         }
-        daysLabel.text = String(format: formatString, completedDays)
+        completeButton.isEnabled = true
         
         let image = isCompletedToday ? UIImage(systemName: "checkmark") : UIImage(systemName: "plus")
         completeButton.setImage(image?.withRenderingMode(.alwaysTemplate), for: .normal)
@@ -166,4 +161,5 @@ final class TrackerCell: UICollectionViewCell {
             completeButton.heightAnchor.constraint(equalToConstant: 34)
         ])
     }
+
 }

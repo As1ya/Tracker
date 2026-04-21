@@ -16,11 +16,11 @@ final class OnboardingViewController: UIViewController {
     private let pages: [OnboardingPage] = [
         OnboardingPage(
             backgroundImageName: Resources.Images.onboarding1,
-            headline: "Отслеживайте только\nто, что хотите"
+            headline: L10n.Onboarding.Page1.headline
         ),
         OnboardingPage(
             backgroundImageName: Resources.Images.onboarding2,
-            headline: "Даже если это\nне литры воды и йога"
+            headline: L10n.Onboarding.Page2.headline
         )
     ]
 
@@ -55,7 +55,7 @@ final class OnboardingViewController: UIViewController {
 
     private lazy var ctaButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Вот это технологии!"
+        config.title = L10n.Onboarding.ctaButton
         config.baseForegroundColor = .white
         config.baseBackgroundColor = .black
         config.cornerStyle = .large

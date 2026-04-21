@@ -22,7 +22,7 @@ final class TrackerTypeSelectionViewController: UIViewController {
     // MARK: - UI Elements
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Создание трекера"
+        label.text = L10n.TrackerSelection.title
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = .label
         label.textAlignment = .center
@@ -32,7 +32,7 @@ final class TrackerTypeSelectionViewController: UIViewController {
     
     private lazy var habitButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Привычка", for: .normal)
+        button.setTitle(L10n.TrackerSelection.habitButton, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .trBlack
         button.setTitleColor(.trWhite, for: .normal)
@@ -44,7 +44,7 @@ final class TrackerTypeSelectionViewController: UIViewController {
     
     private lazy var eventButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Нерегулярное событие", for: .normal)
+        button.setTitle(L10n.TrackerSelection.eventButton, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .trBlack
         button.setTitleColor(.trWhite, for: .normal)

@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		814A15382F94F8C6009C0118 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 814A15372F94F8C6009C0118 /* SnapshotTesting */; };
+		814A15412F951329009C0118 /* AppMetricaCore in Frameworks */ = {isa = PBXBuildFile; productRef = 814A15402F951329009C0118 /* AppMetricaCore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		81E603DF2F8829AA001C77A1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +70,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				814A15412F951329009C0118 /* AppMetricaCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,6 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				814A15382F94F8C6009C0118 /* SnapshotTesting in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,12 +92,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		814A15362F94F8C6009C0118 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		81E603BF2F8829A7001C77A1 = {
 			isa = PBXGroup;
 			children = (
 				81E603CA2F8829A7001C77A1 /* Tracker */,
 				81E603E12F8829AA001C77A1 /* TrackerTests */,
 				81E603EB2F8829AA001C77A1 /* TrackerUITests */,
+				814A15362F94F8C6009C0118 /* Frameworks */,
 				81E603C92F8829A7001C77A1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,6 +127,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 81E603F12F8829AA001C77A1 /* Build configuration list for PBXNativeTarget "Tracker" */;
 			buildPhases = (
+				C1A9230CF36DA3DB6DDDF616 /* SwiftGen */,
 				81E603C42F8829A7001C77A1 /* Sources */,
 				81E603C52F8829A7001C77A1 /* Frameworks */,
 				81E603C62F8829A7001C77A1 /* Resources */,
@@ -124,8 +140,6 @@
 				81E603CA2F8829A7001C77A1 /* Tracker */,
 			);
 			name = Tracker;
-			packageProductDependencies = (
-			);
 			productName = Tracker;
 			productReference = 81E603C82F8829A7001C77A1 /* Tracker.app */;
 			productType = "com.apple.product-type.application";
@@ -147,8 +161,6 @@
 				81E603E12F8829AA001C77A1 /* TrackerTests */,
 			);
 			name = TrackerTests;
-			packageProductDependencies = (
-			);
 			productName = TrackerTests;
 			productReference = 81E603DE2F8829AA001C77A1 /* TrackerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -170,8 +182,6 @@
 				81E603EB2F8829AA001C77A1 /* TrackerUITests */,
 			);
 			name = TrackerUITests;
-			packageProductDependencies = (
-			);
 			productName = TrackerUITests;
 			productReference = 81E603E82F8829AA001C77A1 /* TrackerUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -205,9 +215,17 @@
 			knownRegions = (
 				en,
 				Base,
+				fr,
+				ru,
+				"zh-Hant",
 			);
 			mainGroup = 81E603BF2F8829A7001C77A1;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				814A15352F94F379009C0118 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
+				814A153D2F950FA0009C0118 /* XCRemoteSwiftPackageReference "metrica-sdk-ios" */,
+				814A153F2F9511E4009C0118 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 81E603C92F8829A7001C77A1 /* Products */;
 			projectDirPath = "";
@@ -243,6 +261,31 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		C1A9230CF36DA3DB6DDDF616 /* SwiftGen */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${SRCROOT}/swiftgen.yml",
+				"${SRCROOT}/Tracker/Resources/ru.lproj/Localizable.strings",
+				"${SRCROOT}/Tracker/Resources/ru.lproj/Localizable.stringsdict",
+			);
+			name = SwiftGen;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${SRCROOT}/Tracker/Resources/Strings+Generated.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nif which swiftgen >/dev/null; then\n  swiftgen\nelse\n  echo \"warning: SwiftGen not installed, download it from https://github.com/SwiftGen/SwiftGen\"\nfi";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		81E603C42F8829A7001C77A1 /* Sources */ = {
@@ -290,6 +333,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M3X86T6YAB;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Tracker/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -323,6 +367,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M3X86T6YAB;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Tracker/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -353,6 +398,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -386,7 +432,7 @@
 				DEVELOPMENT_TEAM = M3X86T6YAB;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -417,6 +463,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -450,7 +497,7 @@
 				DEVELOPMENT_TEAM = M3X86T6YAB;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -476,6 +523,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M3X86T6YAB;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
@@ -498,6 +546,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M3X86T6YAB;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
@@ -519,6 +568,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M3X86T6YAB;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = ru.yandex.practicum.As1ya.TrackerUITests;
@@ -539,6 +589,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M3X86T6YAB;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = ru.yandex.practicum.As1ya.TrackerUITests;
@@ -593,6 +644,46 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		814A15352F94F379009C0118 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-snapshot-testing";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.19.2;
+			};
+		};
+		814A153D2F950FA0009C0118 /* XCRemoteSwiftPackageReference "metrica-sdk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/yandexmobile/metrica-sdk-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
+		814A153F2F9511E4009C0118 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/appmetrica/appmetrica-sdk-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		814A15372F94F8C6009C0118 /* SnapshotTesting */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 814A15352F94F379009C0118 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
+			productName = SnapshotTesting;
+		};
+		814A15402F951329009C0118 /* AppMetricaCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 814A153F2F9511E4009C0118 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
+			productName = AppMetricaCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 81E603C02F8829A7001C77A1 /* Project object */;
 }

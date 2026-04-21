@@ -58,6 +58,7 @@ final class TrackerStore: NSObject {
         trackerCoreData.name = tracker.name
         trackerCoreData.emoji = tracker.emoji
         trackerCoreData.isPinned = tracker.isPinned
+        trackerCoreData.isHabit = tracker.isHabit
         trackerCoreData.colorHex = UIColorMarshalling.hexString(from: tracker.color)
         trackerCoreData.schedule = tracker.schedule.map { String($0.rawValue) }.joined(separator: ",")
         trackerCoreData.category = category
@@ -76,6 +77,7 @@ final class TrackerStore: NSObject {
         trackerCoreData.colorHex = UIColorMarshalling.hexString(from: tracker.color)
         trackerCoreData.schedule = tracker.schedule.map { String($0.rawValue) }.joined(separator: ",")
         trackerCoreData.isPinned = tracker.isPinned
+        trackerCoreData.isHabit = tracker.isHabit
         
         let categoryRequest = TrackerCategoryCoreData.fetchRequest()
         categoryRequest.predicate = NSPredicate(format: "title == %@", categoryTitle)
@@ -143,8 +145,9 @@ final class TrackerStore: NSObject {
         let color = UIColorMarshalling.color(from: colorHex)
         let schedule = parseSchedule(coreData.schedule)
         let isPinned = coreData.isPinned
+        let isHabit = coreData.isHabit
         
-        return Tracker(id: id, name: name, color: color, emoji: emoji, schedule: schedule, isPinned: isPinned)
+        return Tracker(id: id, name: name, color: color, emoji: emoji, schedule: schedule, isPinned: isPinned, isHabit: isHabit)
     }
     
     // MARK: - Private Methods
@@ -179,13 +182,13 @@ extension StoreError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .decodingError:
-            return "Не удалось прочитать сохранённые данные."
+            return L10n.CoreData.readFailed
         case .duplicateRecord:
-            return "Запись за этот день уже существует."
+            return L10n.CoreData.recordExists
         case .categoryAlreadyExists:
-            return "Категория с таким названием уже существует."
+            return L10n.CoreData.categoryExists
         case .emptyTitle:
-            return "Название не может быть пустым."
+            return L10n.CoreData.emptyName
         }
     }
 }
