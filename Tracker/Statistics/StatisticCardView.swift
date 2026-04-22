@@ -13,7 +13,7 @@ final class StatisticCardView: UIView {
     
     // MARK: - UI Components
     
-    private let valueLabel: UILabel = {
+    private lazy var valueLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 34, weight: .bold)
         label.textColor = .label
@@ -21,7 +21,7 @@ final class StatisticCardView: UIView {
         return label
     }()
 
-    private let titleLabel: UILabel = {
+    private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         label.textColor = .label
@@ -44,7 +44,7 @@ final class StatisticCardView: UIView {
 
     @available(*, unavailable)
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     // MARK: - Lifecycle

@@ -108,14 +108,8 @@ final class TrackersViewModel {
             return false
         }
         
-        if tracker.isHabit {
-            return completedTrackers.contains { record in
-                record.trackerId == id && Calendar.current.isDate(record.date, inSameDayAs: currentDate)
-            }
-        } else {
-            return completedTrackers.contains { record in
-                record.trackerId == id
-            }
+        return completedTrackers.contains { record in
+            record.trackerId == id && (tracker.isHabit ? Calendar.current.isDate(record.date, inSameDayAs: currentDate) : true)
         }
     }
     

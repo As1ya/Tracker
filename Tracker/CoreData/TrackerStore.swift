@@ -181,14 +181,10 @@ enum StoreError: Error {
 extension StoreError: LocalizedError {
     var errorDescription: String? {
         switch self {
-        case .decodingError:
-            return L10n.CoreData.readFailed
-        case .duplicateRecord:
-            return L10n.CoreData.recordExists
-        case .categoryAlreadyExists:
-            return L10n.CoreData.categoryExists
-        case .emptyTitle:
-            return L10n.CoreData.emptyName
+        case .decodingError: L10n.CoreData.readFailed
+        case .duplicateRecord: L10n.CoreData.recordExists
+        case .categoryAlreadyExists: L10n.CoreData.categoryExists
+        case .emptyTitle: L10n.CoreData.emptyName
         }
     }
 }

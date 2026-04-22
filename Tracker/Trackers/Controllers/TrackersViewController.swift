@@ -99,12 +99,12 @@ final class TrackersViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        AnalyticsService.shared.report(event: "open", screen: "Main")
+        AnalyticsService.report(event: .open, screen: .main)
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        AnalyticsService.shared.report(event: "close", screen: "Main")
+        AnalyticsService.report(event: .close, screen: .main)
     }
     
     // MARK: - Setup
@@ -155,14 +155,14 @@ final class TrackersViewController: UIViewController {
     
     // MARK: - Actions
     @objc private func addButtonTapped() {
-        AnalyticsService.shared.report(event: "click", screen: "Main", item: "add_track")
+        AnalyticsService.report(event: .click, screen: .main, item: .addTrack)
         let selectionVC = TrackerTypeSelectionViewController()
         selectionVC.delegate = self
         present(selectionVC, animated: true)
     }
     
     @objc private func filterButtonTapped() {
-        AnalyticsService.shared.report(event: "click", screen: "Main", item: "filter")
+        AnalyticsService.report(event: .click, screen: .main, item: .filter)
         let vc = FiltersViewController(selectedFilter: .all) // We should probably store the current filter in VC too or get from VM
         vc.delegate = self
         present(vc, animated: true)
@@ -287,7 +287,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
             let editAction = UIAction(title: L10n.Trackers.ContextMenu.edit) { _ in
-                AnalyticsService.shared.report(event: "click", screen: "Main", item: "edit")
+                AnalyticsService.report(event: .click, screen: .main, item: .edit)
                 self?.showEditTracker(tracker)
             }
 
@@ -297,7 +297,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
             }
             
             let deleteAction = UIAction(title: L10n.Trackers.ContextMenu.delete, attributes: .destructive) { _ in
-                AnalyticsService.shared.report(event: "click", screen: "Main", item: "delete")
+                AnalyticsService.report(event: .click, screen: .main, item: .delete)
                 self?.showDeleteConfirmation(tracker)
             }
             
@@ -349,7 +349,7 @@ extension TrackersViewController: FiltersViewControllerDelegate {
 // MARK: - TrackerCellDelegate
 extension TrackersViewController: TrackerCellDelegate {
     func trackerCellDidTapCompleteButton(_ cell: TrackerCell) {
-        AnalyticsService.shared.report(event: "click", screen: "Main", item: "track")
+        AnalyticsService.report(event: .click, screen: .main, item: .track)
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
         

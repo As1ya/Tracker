@@ -97,11 +97,7 @@ extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
         cell.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.3)
         cell.selectionStyle = .none
         
-        if filter == selectedFilter {
-            cell.accessoryType = .checkmark
-        } else {
-            cell.accessoryType = .none
-        }
+        cell.accessoryType = (filter == selectedFilter) ? .checkmark : .none
         
         return cell
     }

@@ -12,9 +12,25 @@ import AppMetricaCore
 
 final class AnalyticsService {
     
-    // MARK: - Singleton
+    // MARK: - Nested Types
     
-    static let shared = AnalyticsService()
+    enum Event: String {
+        case open
+        case close
+        case click
+    }
+    
+    enum Screen: String {
+        case main = "Main"
+    }
+    
+    enum Item: String {
+        case addTrack = "add_track"
+        case track
+        case filter
+        case edit
+        case delete
+    }
 
     // MARK: - Private Constants
     
@@ -31,14 +47,14 @@ final class AnalyticsService {
     
     // MARK: - Public Methods
     
-    func report(event: String, screen: String, item: String? = nil) {
+    static func report(event: Event, screen: Screen, item: Item? = nil) {
         var params: [String: Any] = [
-            Keys.event: event,
-            Keys.screen: screen
+            Keys.event: event.rawValue,
+            Keys.screen: screen.rawValue
         ]
 
-        if let item = item {
-            params[Keys.item] = item
+        if let item {
+            params[Keys.item] = item.rawValue
         }
 
         AppMetrica.reportEvent(name: Keys.appMetricaEventName, parameters: params)

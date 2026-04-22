@@ -96,7 +96,7 @@ final class StatisticsViewModel {
         }
 
         return habits.reduce(0) { currentBest, tracker in
-            guard let completedDates = recordsByTracker[tracker.id], completedDates.isEmpty == false else {
+            guard let completedDates = recordsByTracker[tracker.id], !completedDates.isEmpty else {
                 return currentBest
             }
 
@@ -135,7 +135,7 @@ final class StatisticsViewModel {
     }
 
     private func idealDays(for habits: [Tracker], records: [TrackerRecord]) -> Int {
-        guard records.isEmpty == false else { return 0 }
+        guard !records.isEmpty else { return 0 }
 
         let normalizedDates = records.map { calendar.startOfDay(for: $0.date) }
         guard
@@ -155,7 +155,7 @@ final class StatisticsViewModel {
             let scheduledHabits = habits.filter { isTrackerScheduled($0, on: currentDate) }
             let scheduledIDs = Set(scheduledHabits.map(\.id))
 
-            if scheduledIDs.isEmpty == false,
+            if !scheduledIDs.isEmpty,
                let completedIDs = recordsByDate[currentDate],
                scheduledIDs.isSubset(of: completedIDs) {
                 idealDaysCount += 1
@@ -169,7 +169,7 @@ final class StatisticsViewModel {
     }
 
     private func averageValue(for records: [TrackerRecord]) -> Int {
-        guard records.isEmpty == false else { return 0 }
+        guard !records.isEmpty else { return 0 }
 
         let distinctDays = Set(records.map { calendar.startOfDay(for: $0.date) }).count
         guard distinctDays > 0 else { return 0 }
