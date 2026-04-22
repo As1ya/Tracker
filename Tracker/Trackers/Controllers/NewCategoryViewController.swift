@@ -38,7 +38,7 @@ final class NewCategoryViewController: UIViewController {
     
     private lazy var textField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Введите название категории"
+        textField.placeholder = L10n.NewCategory.placeholder
         textField.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.3)
         textField.layer.cornerRadius = Resources.Constants.cornerRadius
         textField.clearButtonMode = .whileEditing
@@ -56,7 +56,7 @@ final class NewCategoryViewController: UIViewController {
     
     private lazy var doneButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
+        button.setTitle(L10n.NewCategory.doneButton, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = initialTitle.isEmpty ? .trGray : .trBlack
         button.setTitleColor(.trWhite, for: .normal)
@@ -69,8 +69,8 @@ final class NewCategoryViewController: UIViewController {
     
     private var modeTitle: String {
         switch mode {
-        case .create: return "Новая категория"
-        case .edit: return "Редактирование категории"
+        case .create: return L10n.NewCategory.createTitle
+        case .edit: return L10n.NewCategory.editTitle
         }
     }
     
@@ -131,7 +131,7 @@ final class NewCategoryViewController: UIViewController {
     @objc private func doneTapped() {
         let normalizedTitle = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !normalizedTitle.isEmpty else {
-            showError(message: "Название не может быть пустым.")
+            showError(message: L10n.CoreData.emptyName)
             return
         }
 
@@ -142,7 +142,7 @@ final class NewCategoryViewController: UIViewController {
         switch mode {
         case .create:
             guard !normalizedExistingTitles.contains(normalizedTitle.lowercased()) else {
-                showError(message: "Категория с таким названием уже существует.")
+                showError(message: L10n.CoreData.categoryExists)
                 return
             }
             delegate?.didCreateCategory(normalizedTitle)
@@ -150,7 +150,7 @@ final class NewCategoryViewController: UIViewController {
             let normalizedOldTitle = oldTitle.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             let duplicateExists = normalizedExistingTitles.contains(normalizedTitle.lowercased()) && normalizedTitle.lowercased() != normalizedOldTitle
             guard !duplicateExists else {
-                showError(message: "Категория с таким названием уже существует.")
+                showError(message: L10n.CoreData.categoryExists)
                 return
             }
             delegate?.didEditCategory(oldTitle: oldTitle, newTitle: normalizedTitle)
@@ -159,8 +159,8 @@ final class NewCategoryViewController: UIViewController {
     }
 
     private func showError(message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        let alert = UIAlertController(title: L10n.Trackers.Alert.errorTitle, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: L10n.Trackers.Alert.ok, style: .default))
         present(alert, animated: true)
     }
 }

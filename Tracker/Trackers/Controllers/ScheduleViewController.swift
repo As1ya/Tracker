@@ -23,7 +23,7 @@ final class ScheduleViewController: UIViewController {
     // MARK: - UI Elements
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Расписание"
+        label.text = L10n.Schedule.title
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = .label
         label.textAlignment = .center
@@ -44,7 +44,7 @@ final class ScheduleViewController: UIViewController {
     
     private lazy var doneButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
+        button.setTitle(L10n.Schedule.doneButton, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .trBlack
         button.setTitleColor(.trWhite, for: .normal)

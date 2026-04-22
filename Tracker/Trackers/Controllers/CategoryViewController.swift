@@ -21,7 +21,7 @@ final class CategoryViewController: UIViewController {
     // MARK: - UI Elements
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Категория"
+        label.text = L10n.Category.title
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = .label
         label.textAlignment = .center
@@ -50,7 +50,7 @@ final class CategoryViewController: UIViewController {
     
     private lazy var placeholderLabel: UILabel = {
         let label = UILabel()
-        label.text = "Привычки и события можно\nобъединить по смыслу"
+        label.text = L10n.Category.EmptyPlaceholder.text
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         label.textColor = .label
         label.textAlignment = .center
@@ -61,7 +61,7 @@ final class CategoryViewController: UIViewController {
     
     private lazy var addCategoryButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Добавить категорию", for: .normal)
+        button.setTitle(L10n.Category.addCategoryButton, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .trBlack
         button.setTitleColor(.trWhite, for: .normal)
@@ -185,7 +185,7 @@ extension CategoryViewController: UITableViewDataSource, UITableViewDelegate {
         guard let row = viewModel.row(at: indexPath.row) else { return nil }
         
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
-            let editAction = UIAction(title: "Редактировать") { _ in
+            let editAction = UIAction(title: L10n.Category.ContextMenu.edit) { _ in
                 let vc = NewCategoryViewController(
                     mode: .edit(row.title),
                     existingTitles: Set(self?.rows.map(\.title) ?? [])
@@ -194,7 +194,7 @@ extension CategoryViewController: UITableViewDataSource, UITableViewDelegate {
                 self?.present(vc, animated: true)
             }
             
-            let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { _ in
+            let deleteAction = UIAction(title: L10n.Category.ContextMenu.delete, attributes: .destructive) { _ in
                 self?.showDeleteConfirmation(for: row.title)
             }
             
@@ -204,16 +204,16 @@ extension CategoryViewController: UITableViewDataSource, UITableViewDelegate {
     
     private func showDeleteConfirmation(for title: String) {
         let alert = UIAlertController(
-            title: "Эта категория точно не нужна?",
+            title: L10n.Category.Alert.deleteConfirmationTitle,
             message: nil,
             preferredStyle: .actionSheet
         )
         
-        let deleteAction = UIAlertAction(title: "Удалить", style: .destructive) { [weak self] _ in
+        let deleteAction = UIAlertAction(title: L10n.Category.ContextMenu.delete, style: .destructive) { [weak self] _ in
             self?.viewModel.deleteCategory(title: title)
         }
         
-        let cancelAction = UIAlertAction(title: "Отменить", style: .cancel)
+        let cancelAction = UIAlertAction(title: L10n.Trackers.Alert.cancel, style: .cancel)
         
         alert.addAction(deleteAction)
         alert.addAction(cancelAction)
@@ -222,8 +222,8 @@ extension CategoryViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     private func showError(message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        let alert = UIAlertController(title: L10n.Trackers.Alert.errorTitle, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: L10n.Trackers.Alert.ok, style: .default))
         present(alert, animated: true)
     }
 }

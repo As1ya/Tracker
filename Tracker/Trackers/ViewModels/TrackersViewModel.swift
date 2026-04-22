@@ -39,6 +39,7 @@ final class TrackersViewModel {
     
     private var currentDate: Date = Date()
     private var searchText: String?
+    private var currentFilter: TrackerFilter = .all
     
     private var categories: [TrackerCategory] = []
     private var completedTrackers: [TrackerRecord] = []
@@ -73,6 +74,17 @@ final class TrackersViewModel {
         reloadData()
     }
     
+    func updateFilter(_ filter: TrackerFilter) {
+        currentFilter = filter
+        if filter == .today {
+            currentDate = Date()
+            onDateDidReset?()
+        }
+        reloadData()
+    }
+    
+    var onDateDidReset: (() -> Void)?
+    
     func togglePin(for tracker: Tracker) {
         do {
             try trackerStore.togglePin(for: tracker)
@@ -92,8 +104,12 @@ final class TrackersViewModel {
     }
     
     func isCompletedToday(id: UUID) -> Bool {
-        completedTrackers.contains { record in
-            record.trackerId == id && Calendar.current.isDate(record.date, inSameDayAs: currentDate)
+        guard let tracker = categories.flatMap({ $0.trackers }).first(where: { $0.id == id }) else {
+            return false
+        }
+        
+        return completedTrackers.contains { record in
+            record.trackerId == id && (tracker.isHabit ? Calendar.current.isDate(record.date, inSameDayAs: currentDate) : true)
         }
     }
     
@@ -148,8 +164,23 @@ final class TrackersViewModel {
             let filteredTrackers = try trackerStore.fetchTrackers()
             let filteredTrackerIDs = Set(filteredTrackers.map { $0.id })
 
-            let filteredCategories: [TrackerCategory] = categories.compactMap { category in
-                let trackers = category.trackers.filter { filteredTrackerIDs.contains($0.id) }
+            var filteredCategories: [TrackerCategory] = categories.compactMap { category in
+                let trackers = category.trackers.filter { tracker in
+                    // Base filtering from CoreData (search + weekday)
+                    guard filteredTrackerIDs.contains(tracker.id) else { return false }
+                    
+                    // Filter by completion status if needed
+                    let isCompleted = isCompletedToday(id: tracker.id)
+                    switch currentFilter {
+                    case .all, .today:
+                        return true
+                    case .completed:
+                        return isCompleted
+                    case .notCompleted:
+                        return !isCompleted
+                    }
+                }
+                
                 if trackers.isEmpty { return nil }
                 return TrackerCategory(title: category.title, trackers: trackers)
             }
@@ -179,7 +210,7 @@ final class TrackersViewModel {
         
         var result: [TrackerCategory] = []
         if !pinnedTrackers.isEmpty {
-            result.append(TrackerCategory(title: "Закрепленные", trackers: pinnedTrackers))
+            result.append(TrackerCategory(title: L10n.Trackers.pinnedCategory, trackers: pinnedTrackers))
         }
         result.append(contentsOf: otherCategories)
         return result
@@ -187,8 +218,8 @@ final class TrackersViewModel {
     
     private func updateEmptyState() {
         let isEmpty = visibleCategories.isEmpty
-        let isSearch = !(searchText?.isEmpty ?? true)
-        onEmptyStateChange?(isEmpty, isSearch)
+        let isSearchOrFilter = !(searchText?.isEmpty ?? true) || currentFilter == .completed || currentFilter == .notCompleted
+        onEmptyStateChange?(isEmpty, isSearchOrFilter)
     }
     
     private func currentWeekDay() -> WeekDay {

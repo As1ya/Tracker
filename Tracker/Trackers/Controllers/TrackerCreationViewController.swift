@@ -55,7 +55,7 @@ final class TrackerCreationViewController: UIViewController {
     
     private lazy var nameTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Введите название трекера"
+        textField.placeholder = L10n.Creation.placeholder
         textField.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.3)
         textField.layer.cornerRadius = Resources.Constants.cornerRadius
         textField.clearButtonMode = .whileEditing
@@ -111,7 +111,7 @@ final class TrackerCreationViewController: UIViewController {
     
     private lazy var cancelButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Отменить", for: .normal)
+        button.setTitle(L10n.Creation.cancelButton, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.setTitleColor(.trRed, for: .normal)
         button.layer.cornerRadius = Resources.Constants.cornerRadius
@@ -148,7 +148,7 @@ final class TrackerCreationViewController: UIViewController {
     init(isHabit: Bool, mode: Mode = .create) {
         self.isHabit = isHabit
         self.mode = mode
-        self.tableOptions = isHabit ? ["Категория", "Расписание"] : ["Категория"]
+        self.tableOptions = isHabit ? [L10n.Creation.categoryOption, L10n.Creation.scheduleOption] : [L10n.Creation.categoryOption]
 
         switch mode {
         case .create:
@@ -262,7 +262,7 @@ final class TrackerCreationViewController: UIViewController {
 
         switch mode {
         case .create:
-            tracker = Tracker(id: UUID(), name: normalizedName, color: color, emoji: emoji, schedule: scheduleToSave, isPinned: false)
+            tracker = Tracker(id: UUID(), name: normalizedName, color: color, emoji: emoji, schedule: scheduleToSave, isPinned: false, isHabit: isHabit)
             delegate?.didCreateTracker(tracker, category: category)
         case .edit(let original, _):
             tracker = Tracker(
@@ -271,7 +271,8 @@ final class TrackerCreationViewController: UIViewController {
                 color: color,
                 emoji: emoji,
                 schedule: scheduleToSave,
-                isPinned: original.isPinned
+                isPinned: original.isPinned,
+                isHabit: original.isHabit
             )
             delegate?.didUpdateTracker(tracker, category: category)
         }
@@ -298,18 +299,18 @@ final class TrackerCreationViewController: UIViewController {
     private var screenTitle: String {
         switch mode {
         case .create:
-            return isHabit ? "Новая привычка" : "Новое нерегулярное событие"
+            return isHabit ? L10n.Creation.habitTitle : L10n.Creation.eventTitle
         case .edit:
-            return "Редактирование трекера"
+            return L10n.Creation.editTitle
         }
     }
 
     private var actionButtonTitle: String {
         switch mode {
         case .create:
-            return "Создать"
+            return L10n.Creation.createButton
         case .edit:
-            return "Сохранить"
+            return L10n.Creation.saveButton
         }
     }
 
@@ -348,13 +349,13 @@ extension TrackerCreationViewController: UITableViewDataSource, UITableViewDeleg
         cell.accessoryType = .disclosureIndicator
         cell.selectionStyle = .none
         
-        if option == "Категория" {
+        if option == L10n.Creation.categoryOption {
             cell.detailTextLabel?.text = selectedCategory
             cell.detailTextLabel?.textColor = .trGray
-        } else if option == "Расписание" {
+        } else if option == L10n.Creation.scheduleOption {
             var detailText = ""
             if selectedSchedule.count == 7 {
-                detailText = "Каждый день"
+                detailText = L10n.Creation.everyDay
             } else if !selectedSchedule.isEmpty {
                 let order: [WeekDay] = [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
                 let sorted = selectedSchedule.sorted { 
@@ -372,11 +373,11 @@ extension TrackerCreationViewController: UITableViewDataSource, UITableViewDeleg
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selection = tableOptions[indexPath.row]
         
-        if selection == "Категория" {
+        if selection == L10n.Creation.categoryOption {
             let vc = CategoryViewController(selectedCategory: selectedCategory)
             vc.delegate = self
             present(vc, animated: true)
-        } else if selection == "Расписание" {
+        } else if selection == L10n.Creation.scheduleOption {
             let vc = ScheduleViewController(selectedDays: selectedSchedule)
             vc.delegate = self
             present(vc, animated: true)
@@ -432,7 +433,7 @@ extension TrackerCreationViewController: UICollectionViewDataSource, UICollectio
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         guard kind == UICollectionView.elementKindSectionHeader else { return UICollectionReusableView() }
         guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: TrackerCategoryHeader.identifier, for: indexPath) as? TrackerCategoryHeader else { return UICollectionReusableView() }
-        header.titleLabel.text = collectionView == emojiCollectionView ? "Emoji" : "Цвет"
+        header.titleLabel.text = collectionView == emojiCollectionView ? L10n.Creation.emojiHeader : L10n.Creation.colorHeader
         header.titleLabel.font = UIFont.systemFont(ofSize: 19, weight: .bold)
         return header
     }

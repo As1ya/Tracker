@@ -16,6 +16,8 @@ enum Resources {
         static let emptyTrackers = "star"
         static let plus = "plus"
         static let searchPrefix = "magnifyingglass"
+        static let face = "face"
+        static let cryFace = "CryFace"
     }
     
     enum Constants {
